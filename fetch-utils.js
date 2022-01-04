@@ -3,54 +3,79 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsI
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-export async function createCharacter(character){
-    const newCharacter = {
-        ...character, 
-        user_id: client.auth.user().id, 
-    };
 
-    // use the newCharacter to create a single new character for this user in supabase
+export async function getCharacter() {
+    const response = await client
+        .from('characters')
+        .select()
+        .match({ user_id: client.auth.user().id, })
+        .single();
+
+    return checkError(response);    
+}
+
+export async function createCharacter(character) {
+    const response = await client
+        .from('characters')
+        .insert([
+            {
+                // use the newCharacter to create a single new character for this user in supabase
+                ...character,
+                user_id: client.auth.user().id, 
+            }
+        ]);
+
     return checkError(response);
 }
 
 export async function updateHead(value){
-    const currentUserId = client.auth.user().id;
-
+    const currentUserId = await getUser();
     // in supabase, update the head property
-    // for the character whose user_id match's the currently logged in user's id
-
+    const response = await client
+        .from('characters')
+        .update({ head: value })
+    //if the row's user id matches this logged in user
+        .match({ user_id: currentUserId.user.id })
+        .single();
+    // return the updated head
     return checkError(response);    
 }
-
 
 export async function updateMiddle(value){
-    const currentUserId = client.auth.user().id;
+    const currentUserId = await getUser();
 
-    // in supabase, update the middle property
-    // for the character whose user_id match's the currently logged in user's id
+    const response = await client
+        .from('characters')
+        .update({ middle: value })
+        .match({ user_id: currentUserId.user.id })
+        .single();
 
     return checkError(response);    
 }
-
 
 export async function updateBottom(value){
-    const currentUserId = client.auth.user().id;
+    const currentUserId = await getUser();
 
-    // in supabase, update the bottom property
-    // for the character whose user_id match's the currently logged in user's id
-
-    return checkError(response);    
-}
-
-export async function updateChatchphrases(value){
-    const currentUserId = client.auth.user().id;
-
-    // in supabase, update the catchphrases property
-    // for the character whose user_id match's the currently logged in user's id
+    const response = await client
+        .from('characters')
+        .update({ bottom: value })
+        .match({ user_id: currentUserId.user.id })
+        .single();
 
     return checkError(response);    
 }
 
+export async function updateCatchphrases(value){
+    const currentUserId = await getUser();
+
+    const response = await client
+        .from('characters')
+        .update({ catchphrases: value })
+        .match({ user_id: currentUserId.user.id })
+        .single();
+ 
+    return checkError(response);    
+}
 
 /*
 CHALLENGE: how would you use this function? which functions would it replace? what's going on with the brackets in the update() arguments?
@@ -66,17 +91,6 @@ export async function updateCharacter(part, value){
     return checkError(response);    
 }
 */
-
-
-export async function getCharacter() {
-    const response = await client
-        .from('characters')
-        .select()
-        .match({ user_id: client.auth.user().id, })
-        .single();
-
-    return checkError(response);    
-}
 
 export async function getUser() {
     return client.auth.session();
@@ -114,5 +128,6 @@ export async function logout() {
 }
 
 function checkError({ data, error }) {
+    // eslint-disable-next-line no-console
     return error ? console.error(error) : data;
 }
