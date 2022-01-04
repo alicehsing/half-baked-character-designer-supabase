@@ -161,3 +161,8 @@ form button {
     top: 20px;
     right: 20px;
 }
+
+img { 
+    height: 150px;
+    width: 150px;
+}
