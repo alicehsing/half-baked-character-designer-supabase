@@ -14,64 +14,79 @@ export async function getCharacter() {
     return checkError(response);    
 }
 
-export async function createCharacter(character) {
+export async function createDefaultCharacter() {
+    // create a new character with correct defaults for all properties (head, middle, bottom, catchphrases)
     const response = await client
         .from('characters')
-        .insert([
-            {
-                // use the newCharacter to create a single new character for this user in supabase
-                ...character,
-                user_id: client.auth.user().id, 
-            }
-        ]);
-
+        .insert([{
+            head: 'bird',
+            middle: 'blue',
+            bottom: 'leg',
+            catchphrases: ['I am so pretty!'] 
+        }]);
+        
     return checkError(response);
+
 }
 
+// export async function createCharacter(character) {
+//     const response = await client
+//         .from('characters')
+//         .insert([
+//             {
+//                 // use the newCharacter to create a single new character for this user in supabase
+//                 ...character,
+//                 user_id: client.auth.user().id, 
+//             }
+//         ]);
+
+//     return checkError(response);
+// }
+
 export async function updateHead(value){
-    const currentUserId = await getUser();
+    const currentUserId = client.auth.user().id;
     // in supabase, update the head property
     const response = await client
         .from('characters')
         .update({ head: value })
     //if the row's user id matches this logged in user
-        .match({ user_id: currentUserId.user.id })
+        .match({ user_id: currentUserId })
         .single();
     // return the updated head
     return checkError(response);    
 }
 
 export async function updateMiddle(value){
-    const currentUserId = await getUser();
+    const currentUserId = client.auth.user().id;
 
     const response = await client
         .from('characters')
         .update({ middle: value })
-        .match({ user_id: currentUserId.user.id })
+        .match({ user_id: currentUserId })
         .single();
 
     return checkError(response);    
 }
 
 export async function updateBottom(value){
-    const currentUserId = await getUser();
+    const currentUserId = client.auth.user().id;
 
     const response = await client
         .from('characters')
         .update({ bottom: value })
-        .match({ user_id: currentUserId.user.id })
+        .match({ user_id: currentUserId })
         .single();
 
     return checkError(response);    
 }
 
 export async function updateCatchphrases(value){
-    const currentUserId = await getUser();
+    const currentUserId = client.auth.user().id;
 
     const response = await client
         .from('characters')
         .update({ catchphrases: value })
-        .match({ user_id: currentUserId.user.id })
+        .match({ user_id: currentUserId })
         .single();
  
     return checkError(response);    
